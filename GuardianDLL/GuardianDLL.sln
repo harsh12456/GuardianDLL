@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuardianDLL", "GuardianDLL.csproj", "{E12E8403-B61C-4533-BBD7-DCB8092BFD6B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E12E8403-B61C-4533-BBD7-DCB8092BFD6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E12E8403-B61C-4533-BBD7-DCB8092BFD6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E12E8403-B61C-4533-BBD7-DCB8092BFD6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E12E8403-B61C-4533-BBD7-DCB8092BFD6B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF4878FD-3A6A-4A5E-AD78-1C4DF99088CE}
+	EndGlobalSection
+EndGlobal
