@@ -52,11 +52,5 @@ namespace GuardianDLL
             );
         }
 
-        private void OnDelete(object sender, FileSystemEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-                Logs.Add($"[Deleted] {e.FullPath} at {DateTime.Now}")
-            );
-        }
     }
 }
