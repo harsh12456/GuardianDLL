@@ -1,4 +1,4 @@
-using GuardianDLL.pages; // Make sure this matches your folder structure
+using GuardianDLL.pages; // Ensure your folder structure matches this
 using System.Windows;
 using System.Windows.Controls;
 
@@ -16,10 +16,10 @@ namespace GuardianDLL
         private void SetActiveButton(Button activeButton)
         {
             // Reset all buttons to normal style
-            foreach (var button in sidebarButtons)
-            {
-                button.Style = (Style)Resources["SidebarButtonStyle"];
-            }
+            DashboardButton.Style = (Style)Resources["SidebarButtonStyle"];
+            AllLogsButton.Style = (Style)Resources["SidebarButtonStyle"];
+            SuspiciousDllsButton.Style = (Style)Resources["SidebarButtonStyle"];
+            ThreatActivitiesButton.Style = (Style)Resources["SidebarButtonStyle"];
 
             // Set the clicked button to active style
             activeButton.Style = (Style)Resources["ActiveSidebarButtonStyle"];
@@ -29,7 +29,7 @@ namespace GuardianDLL
         {
             SetActiveButton(DashboardButton);
 
-            // You can create a HomePage.xaml UserControl and replace this when ready
+            // Placeholder for Home page
             MainContent.Content = new TextBlock
             {
                 Text = "Home Page (coming soon)",
@@ -49,20 +49,14 @@ namespace GuardianDLL
         private void SuspiciousDllsButton_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(SuspiciousDllsButton);
-
-            MainContent.Content = new TextBlock
-            {
-                Text = "Suspicious DLLs View (coming soon)",
-                Foreground = System.Windows.Media.Brushes.Orange,
-                FontSize = 20,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
+            MainContent.Content = new SuspiciousDllView(); // ? Load the actual view
         }
 
         private void SuspiciousActivitiesButton_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(ThreatActivitiesButton);
+
+            // Placeholder for future implementation
             MainContent.Content = new TextBlock
             {
                 Text = "Suspicious Activities View (coming soon)",
@@ -72,5 +66,28 @@ namespace GuardianDLL
                 HorizontalAlignment = HorizontalAlignment.Center
             };
         }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
     }
 }
