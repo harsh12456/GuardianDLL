@@ -1,138 +1,76 @@
-﻿// GuardianDLL: Basic C# WPF Application to Monitor .dll File Events
-
-using System;
-using System.IO;
+using GuardianDLL.pages; // Make sure this matches your folder structure
 using System.Windows;
-using System.Collections.ObjectModel;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Threading;
-
+using System.Windows.Controls;
 
 namespace GuardianDLL
 {
     public partial class MainWindow : Window
     {
-        private FileSystemWatcher _watcher;
-        public ObservableCollection<string> Logs { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<string> SuspiciousLogs { get; set; } = new ObservableCollection<string>();
-
-
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
-            StartWatcher("C:\\"); // Change path as needed
+            MainContent.Content = new AllLogsView(); // Load AllLogs page by default
+            SetActiveButton(AllLogsButton); // Set AllLogs as active by default
         }
 
-        private void StartWatcher(string path)
+        private void SetActiveButton(Button activeButton)
         {
-            _watcher = new FileSystemWatcher
+            // Reset all buttons to normal style
+            foreach (var button in sidebarButtons)
             {
-                Path = path,
-                Filter = "*.dll",
-                IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.CreationTime
+                button.Style = (Style)Resources["SidebarButtonStyle"];
+            }
+
+            // Set the clicked button to active style
+            activeButton.Style = (Style)Resources["ActiveSidebarButtonStyle"];
+        }
+
+        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetActiveButton(DashboardButton);
+
+            // You can create a HomePage.xaml UserControl and replace this when ready
+            MainContent.Content = new TextBlock
+            {
+                Text = "Home Page (coming soon)",
+                Foreground = System.Windows.Media.Brushes.White,
+                FontSize = 20,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
             };
-
-            _watcher.Created += OnChanged;
-            _watcher.Changed += OnChanged;
-            _watcher.Deleted += OnChanged;
-            _watcher.Renamed += OnRenamed;
-
-            _watcher.EnableRaisingEvents = true;
-            Logs.Add($"[INFO] Watching path: {path} for DLL changes");
         }
 
-        private bool IsSuspicious(string filePath)
+        private void AllLogsButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (!File.Exists(filePath)) return false;
-
-                var cert = System.Security.Cryptography.X509Certificates.X509Certificate.CreateFromSignedFile(filePath);
-                return cert == null;
-            }
-            catch
-            {
-                // If unable to verify, assume suspicious
-                return true;
-            }
+            SetActiveButton(AllLogsButton);
+            MainContent.Content = new AllLogsView();
         }
 
-
-        private void OnChanged(object sender, FileSystemEventArgs e)
+        private void SuspiciousDllsButton_Click(object sender, RoutedEventArgs e)
         {
-            string fileName = Path.GetFileName(e.FullPath).ToLower();
+            SetActiveButton(SuspiciousDllsButton);
 
-            bool isSuspicious = false;
-
-            // Example heuristics
-            if (fileName.Contains("temp") || fileName.Contains("cloudflare") || fileName.EndsWith(".bat") || fileName.Contains("xworm"))
+            MainContent.Content = new TextBlock
             {
-                isSuspicious = true;
-            }
-            if (Path.GetExtension(fileName) == ".dll" && !HasValidSignature(e.FullPath))
-            {
-                isSuspicious = true;
-            }
-
-            if (isSuspicious)
-            {
-                string suspiciousEntry = $"[SUSPICIOUS] {e.ChangeType}: {e.FullPath}";
-                SuspiciousLogs.Add(suspiciousEntry);
-            }
-
+                Text = "Suspicious DLLs View (coming soon)",
+                Foreground = System.Windows.Media.Brushes.Orange,
+                FontSize = 20,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
         }
 
-        private void OnRenamed(object sender, RenamedEventArgs e)
+        private void SuspiciousActivitiesButton_Click(object sender, RoutedEventArgs e)
         {
-            Dispatcher.Invoke(() =>
-                Logs.Add($"[Renamed] {e.OldFullPath} -> {e.FullPath} at {DateTime.Now}")
-            );
-        }
-
-        private void OpenSuspiciousWindow(object sender, RoutedEventArgs e)
-        {
-            SuspiciousWindow sw = new SuspiciousWindow(SuspiciousLogs);
-            sw.Show();
-        }
-        private bool HasValidSignature(string filePath)
-        {
-            try
+            SetActiveButton(ThreatActivitiesButton);
+            MainContent.Content = new TextBlock
             {
-                X509Certificate cert = X509Certificate.CreateFromSignedFile(filePath);
-                X509Certificate2 cert2 = new X509Certificate2(cert);
-
-                // Optional: You can do deeper checks here, like expiry or issuer.
-                return !string.IsNullOrEmpty(cert2.Issuer);
-            }
-            catch
-            {
-                // Unsigned or invalid
-                return false;
-            }
+                Text = "Suspicious Activities View (coming soon)",
+                Foreground = System.Windows.Media.Brushes.OrangeRed,
+                FontSize = 20,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
         }
-        private void ScanSuspiciousDlls(object sender, RoutedEventArgs e)
-        {
-            SuspiciousDllList.Items.Clear();
-
-            Task.Run(() =>
-            {
-                Thread.Sleep(1000);
-
-                Dispatcher.Invoke(() =>
-                {
-                    SuspiciousDllList.Items.Add("🛑 [UNSIGNED] C:\\Users\\Public\\AppData\\Local\\Temp\\cloudflare_update.dll");
-                    SuspiciousDllList.Items.Add("⚠️ [INVALID CERT] C:\\ProgramData\\NVIDIA\\drivers\\nvTelemetry64.dll");
-                    SuspiciousDllList.Items.Add("🧪 [SUSPICIOUS NAME] C:\\Users\\Sanskar\\AppData\\Roaming\\SystemCache\\xworm_helper.dll");
-                    SuspiciousDllList.Items.Add("🛑 [UNSIGNED] C:\\Windows\\System32\\drivers\\hid_comms.dll");
-                    SuspiciousDllList.Items.Add("⚠️ [TAMPERED CERT] C:\\Program Files (x86)\\Common Files\\Updater\\taskrunner.dll");
-                    SuspiciousDllList.Items.Add("🧪 [HEURISTIC MATCH] C:\\Users\\Sanskar\\Downloads\\gputool_patch.dll");
-                });
-            });
-        }
-
-
-
     }
 }
