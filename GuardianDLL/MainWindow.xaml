@@ -1,50 +1,68 @@
-﻿<Window x:Class="GuardianDLL.MainWindow"
+﻿
+
+<Window x:Class="GuardianDLL.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="GuardianDLL Monitor" Height="600" Width="900"
+        xmlns:local="clr-namespace:GuardianDLL"
+        Title="GuardianDLL Monitor" Height="600" Width="1000"
         Background="#1e1e1e">
-    <Grid Margin="10">
-        <TabControl Background="#1e1e1e" Foreground="White">
 
-            <!-- All Logs Tab -->
-            <TabItem Header="All Logs">
-                <ListBox x:Name="LogList"
-                         ItemsSource="{Binding Logs}"
-                         FontFamily="Consolas"
-                         Background="#252526"
-                         Foreground="White"
-                         FontSize="14"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-            </TabItem>
+    <Window.Resources>
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="15 10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter Margin="10 0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3a3a3a"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
-            <!-- Suspicious Logs Tab -->
-            <TabItem Header="Suspicious Logs">
-                <ListBox x:Name="SuspiciousLogList"
-                         ItemsSource="{Binding SuspiciousLogs}"
-                         FontFamily="Consolas"
-                         Background="#2b1b1b"
-                         Foreground="OrangeRed"
-                         FontSize="14"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-            </TabItem>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <!-- Sidebar width -->
+            <ColumnDefinition Width="*"/>
+            <!-- Content area -->
+        </Grid.ColumnDefinitions>
 
-            <!-- Suspicious DLLs Tab -->
-            <TabItem Header="Suspicious DLLs">
-                <StackPanel>
-                    <Button Content="Scan C:\ for Suspicious DLLs"
-                            Margin="0,10,0,10"
-                            Padding="10"
-                            Click="ScanSuspiciousDlls"/>
+        <!-- Sidebar -->
+        <StackPanel Background="#252526" Grid.Column="0">
+            <TextBlock Text="Security Monitor"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Margin="20"/>
+            <Button Content="Home"
+                    Style="{StaticResource SidebarButtonStyle}"
+                    Click="HomeButton_Click"/>
+            <Button Content="All Logs"
+                    Style="{StaticResource SidebarButtonStyle}"
+                    Click="AllLogsButton_Click"/>
+            <Button Content="Suspicious DLLs"
+                    Style="{StaticResource SidebarButtonStyle}"
+                    Click="SuspiciousDllsButton_Click"/>
+            <Button Content="Suspicious Activities"
+                    Style="{StaticResource SidebarButtonStyle}"
+                    Click="SuspiciousActivitiesButton_Click"/>
+        </StackPanel>
 
-                    <ListBox x:Name="SuspiciousDllList"
-                             FontFamily="Consolas"
-                             Background="#1b1b1b"
-                             Foreground="Yellow"
-                             FontSize="14"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-                </StackPanel>
-            </TabItem>
-
-        </TabControl>
+        <!-- Main Content Area -->
+        <ContentControl x:Name="MainContent" Grid.Column="1"/>
     </Grid>
 </Window>
