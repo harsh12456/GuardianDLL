@@ -1,4 +1,3 @@
-﻿
 using GuardianDLL.pages; // Make sure this matches your folder structure
 using System.Windows;
 using System.Windows.Controls;
@@ -64,7 +63,6 @@ namespace GuardianDLL
         private void SuspiciousActivitiesButton_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(ThreatActivitiesButton);
-
             MainContent.Content = new TextBlock
             {
                 Text = "Suspicious Activities View (coming soon)",
