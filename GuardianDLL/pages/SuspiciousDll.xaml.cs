@@ -172,7 +172,10 @@ namespace GuardianDLL.pages
                     // Skip files that cause other issues
                 }
                 processed++;
-                UpdateProgress(processed, total);
+                if (processed % 10 == 0 || processed == total)
+                {
+                    UpdateProgress(processed, total);
+                }
             }
 
             Dispatcher.Invoke(() =>
