@@ -1,6 +1,7 @@
 using GuardianDLL.pages; // Ensure your folder structure matches this
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace GuardianDLL
 {
@@ -87,6 +88,12 @@ namespace GuardianDLL
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+                DragMove();
         }
 
     }
