@@ -17,10 +17,10 @@ namespace GuardianDLL
         private void SetActiveButton(Button activeButton)
         {
             // Reset all buttons to normal style
-            DashboardButton.Style = (Style)Resources["SidebarButtonStyle"];
-            AllLogsButton.Style = (Style)Resources["SidebarButtonStyle"];
-            SuspiciousDllsButton.Style = (Style)Resources["SidebarButtonStyle"];
-            ThreatActivitiesButton.Style = (Style)Resources["SidebarButtonStyle"];
+            foreach (var button in sidebarButtons)
+            {
+                button.Style = (Style)Resources["SidebarButtonStyle"];
+            }
 
             // Set the clicked button to active style
             activeButton.Style = (Style)Resources["ActiveSidebarButtonStyle"];
