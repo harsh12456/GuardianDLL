@@ -1,16 +1,50 @@
 ﻿<Window x:Class="GuardianDLL.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="GuardianDLL Monitor" Height="450" Width="800">
-    <Grid Background="#1e1e1e">
-        <Border Margin="10">
-            <ListBox ItemsSource="{Binding Logs}" 
-                     Background="#252526" 
-                     Foreground="White"
-                     FontFamily="Consolas" 
-                     FontSize="14"
-                     BorderThickness="0"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-        </Border>
+        Title="GuardianDLL Monitor" Height="600" Width="900"
+        Background="#1e1e1e">
+    <Grid Margin="10">
+        <TabControl Background="#1e1e1e" Foreground="White">
+
+            <!-- All Logs Tab -->
+            <TabItem Header="All Logs">
+                <ListBox x:Name="LogList"
+                         ItemsSource="{Binding Logs}"
+                         FontFamily="Consolas"
+                         Background="#252526"
+                         Foreground="White"
+                         FontSize="14"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            </TabItem>
+
+            <!-- Suspicious Logs Tab -->
+            <TabItem Header="Suspicious Logs">
+                <ListBox x:Name="SuspiciousLogList"
+                         ItemsSource="{Binding SuspiciousLogs}"
+                         FontFamily="Consolas"
+                         Background="#2b1b1b"
+                         Foreground="OrangeRed"
+                         FontSize="14"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            </TabItem>
+
+            <!-- Suspicious DLLs Tab -->
+            <TabItem Header="Suspicious DLLs">
+                <StackPanel>
+                    <Button Content="Scan C:\ for Suspicious DLLs"
+                            Margin="0,10,0,10"
+                            Padding="10"
+                            Click="ScanSuspiciousDlls"/>
+
+                    <ListBox x:Name="SuspiciousDllList"
+                             FontFamily="Consolas"
+                             Background="#1b1b1b"
+                             Foreground="Yellow"
+                             FontSize="14"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+            </TabItem>
+
+        </TabControl>
     </Grid>
 </Window>
