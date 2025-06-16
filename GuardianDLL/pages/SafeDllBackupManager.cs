@@ -25,9 +25,17 @@ namespace GuardianDLL.pages
         {
             if (File.Exists(_metadataFile))
             {
-                var json = File.ReadAllText(_metadataFile);
-                _dllBackups = JsonSerializer.Deserialize<Dictionary<string, string>>(json)
-                              ?? new Dictionary<string, string>();
+                try
+                {
+                    var json = File.ReadAllText(_metadataFile);
+                    _dllBackups = JsonSerializer.Deserialize<Dictionary<string, string>>(json)
+                                  ?? new Dictionary<string, string>();
+                }
+                catch (Exception ex) // Catch both I/O and JSON-related exceptions
+                {
+                    Console.WriteLine($"Error loading backup metadata: {ex.Message}");
+                    _dllBackups = new Dictionary<string, string>();
+                }
             }
             else
             {
