@@ -7,14 +7,18 @@ namespace GuardianDLL
 {
     public partial class MainWindow : Window
     {
+        private AllLogsView _allLogsView;
+        private SuspiciousDllView _suspiciousDllView;
         public MainWindow()
         {
             InitializeComponent();
+            _allLogsView = new AllLogsView();
+            _suspiciousDllView = new SuspiciousDllView();
             MainContent.Content = new AllLogsView(); // Load AllLogs page by default
             SetActiveButton(AllLogsButton); // Set AllLogs as active by default
         }
 
-        private void SetActiveButton(Button activeButton)
+        private void SetActiveButton(System.Windows.Controls.Button activeButton)
         {
             // Reset all buttons to normal style
             DashboardButton.Style = (Style)Resources["SidebarButtonStyle"];
@@ -37,20 +41,20 @@ namespace GuardianDLL
                 Foreground = System.Windows.Media.Brushes.White,
                 FontSize = 20,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
             };
         }
 
         private void AllLogsButton_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(AllLogsButton);
-            MainContent.Content = new AllLogsView();
+            MainContent.Content = _allLogsView;
         }
 
         private void SuspiciousDllsButton_Click(object sender, RoutedEventArgs e)
         {
             SetActiveButton(SuspiciousDllsButton);
-            MainContent.Content = new SuspiciousDllView(); // ? Load the actual view
+            MainContent.Content = _suspiciousDllView; // ? Load the actual view
         }
 
         private void SuspiciousActivitiesButton_Click(object sender, RoutedEventArgs e)
@@ -64,7 +68,7 @@ namespace GuardianDLL
                 Foreground = System.Windows.Media.Brushes.OrangeRed,
                 FontSize = 20,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
             };
         }
 
