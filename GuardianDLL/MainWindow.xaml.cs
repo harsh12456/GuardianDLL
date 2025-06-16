@@ -18,7 +18,7 @@ namespace GuardianDLL
             SetActiveButton(AllLogsButton); // Set AllLogs as active by default
         }
 
-        private void SetActiveButton(Button activeButton)
+        private void SetActiveButton(System.Windows.Controls.Button activeButton)
         {
             // Reset all buttons to normal style
             DashboardButton.Style = (Style)Resources["SidebarButtonStyle"];
@@ -41,7 +41,7 @@ namespace GuardianDLL
                 Foreground = System.Windows.Media.Brushes.White,
                 FontSize = 20,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
             };
         }
 
@@ -68,7 +68,7 @@ namespace GuardianDLL
                 Foreground = System.Windows.Media.Brushes.OrangeRed,
                 FontSize = 20,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
             };
         }
 
