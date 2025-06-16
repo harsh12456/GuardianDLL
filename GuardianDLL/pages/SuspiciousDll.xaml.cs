@@ -16,6 +16,8 @@ namespace GuardianDLL.pages
 {
     public partial class SuspiciousDllView : System.Windows.Controls.UserControl
     {
+        private readonly SafeDllBackupManager _backupManager = new SafeDllBackupManager();
+
         private HashSet<string> knownHijackableDlls = new HashSet<string>
         {
             "version.dll", "winmm.dll", "dwmapi.dll", "dbghelp.dll", "msvcrt.dll", "userenv.dll", "profapi.dll"
@@ -303,6 +305,19 @@ namespace GuardianDLL.pages
                         if (isHijackProne)
                             threat += "[HIJACK-PRONE DLL] ";
 
+                        if (isTrusted && !isHeuristic && !isHijackProne)
+                        {
+                            try
+                            {
+                                _backupManager.BackupDll(dllPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Optionally log or show error
+                                // System.Windows.MessageBox.Show($"Failed to backup DLL: {ex.Message}");
+                            }
+                        }
+
                         if (!isTrusted || isHeuristic || isHijackProne)
                         {
                             var fileInfo = new FileInfo(dllPath);
@@ -542,27 +557,26 @@ namespace GuardianDLL.pages
             {
                 try
                 {
-                    string quarantineDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GuardianDLL", "Quarantine");
-
-                    // Look for quarantined file (might have timestamp)
-                    string fileName = Path.GetFileName(originalPath);
-                    var quarantinedFiles = Directory.GetFiles(quarantineDir, $"{fileName}*.quarantined");
-
-                    if (quarantinedFiles.Length > 0)
+                    if (_backupManager.HasBackup(originalPath))
                     {
-                        string quarantinedPath = quarantinedFiles[0]; // Use the first match
-                        File.Move(quarantinedPath, originalPath);
-                        UpdateFileStatus(originalPath, "restored");
-                        System.Windows.MessageBox.Show("File restored successfully!", "Restore Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                        if (_backupManager.RestoreDll(originalPath))
+                        {
+                            UpdateFileStatus(originalPath, "restored");
+                            System.Windows.MessageBox.Show("DLL restored from backup.", "Restore Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            System.Windows.MessageBox.Show("Backup file not found!", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
                     }
                     else
                     {
-                        System.Windows.MessageBox.Show("Quarantined file not found!", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show("No backup exists for this DLL.", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show($"Failed to restore file: {ex.Message}", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show($"Failed to restore DLL: {ex.Message}", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -710,7 +724,8 @@ namespace GuardianDLL.pages
             {
                 Content = "Restore",
                 Tag = result.File,
-                Style = (Style)FindResource("RestoreButtonStyle")
+                Style = (Style)FindResource("RestoreButtonStyle"),
+                IsEnabled = _backupManager.HasBackup(result.File)
             };
             restoreButton.Click += RestoreFile_Click;
 
