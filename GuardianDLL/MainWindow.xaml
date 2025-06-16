@@ -151,12 +151,6 @@
             Style="{StaticResource SidebarButtonStyle}"
             Click="SuspiciousDllsButton_Click"/>
 
-                        <Button Name="ThreatActivitiesButton"
-            Content="Threat Activities"
-            Tag="&#xE730;"  
-            Style="{StaticResource SidebarButtonStyle}"
-            Click="SuspiciousActivitiesButton_Click"/>
-
                     </StackPanel>
                 </Grid>
             </Border>
