@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace GuardianDLL.pages
 {
@@ -23,11 +24,22 @@ namespace GuardianDLL.pages
         private bool _isScanning = false;
         private DispatcherTimer _progressTimer;
         private int _currentProgress = 0;
+        private string _selectedPath = "";
+        private List<ScanResult> _scanResults = new List<ScanResult>();
 
         public SuspiciousDllView()
         {
             InitializeComponent();
             SetupProgressTimer();
+            InitializeUI();
+        }
+
+        private void InitializeUI()
+        {
+            // Initially hide the selected path indicator and show warning
+            SelectedPathIndicator.Visibility = Visibility.Collapsed;
+            NoPathWarning.Visibility = Visibility.Visible;
+            ScanButton.IsEnabled = false;
         }
 
         private void SetupProgressTimer()
@@ -37,9 +49,103 @@ namespace GuardianDLL.pages
             _progressTimer.Tick += ProgressTimer_Tick;
         }
 
+        private void BrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select any folder or file to scan (including entire drives like C:\\)",
+                Filter = "All Files (*.*)|*.*|DLL Files (*.dll)|*.dll|Executable Files (*.exe)|*.exe",
+                CheckFileExists = false,
+                CheckPathExists = false,
+                ValidateNames = false,
+                Multiselect = false,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer),
+                FileName = "Folder Selection"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string selectedPath = dialog.FileName;
+
+                // Handle different selection scenarios
+                if (selectedPath == "Folder Selection" || string.IsNullOrEmpty(Path.GetFileName(selectedPath)))
+                {
+                    // User navigated to a folder but didn't select a file
+                    _selectedPath = Path.GetDirectoryName(selectedPath) ?? selectedPath;
+                }
+                else if (File.Exists(selectedPath))
+                {
+                    // User selected an actual file
+                    _selectedPath = selectedPath;
+                }
+                else if (Directory.Exists(selectedPath))
+                {
+                    // User selected a directory
+                    _selectedPath = selectedPath;
+                }
+                else
+                {
+                    // Try to get the directory from the path
+                    string directoryPath = Path.GetDirectoryName(selectedPath);
+                    if (Directory.Exists(directoryPath))
+                    {
+                        _selectedPath = directoryPath;
+                    }
+                    else
+                    {
+                        // Handle drive selection (like C:\)
+                        if (selectedPath.Length >= 2 && selectedPath[1] == ':')
+                        {
+                            string drivePath = selectedPath.Substring(0, 3); // Get "C:\" format
+                            if (Directory.Exists(drivePath))
+                            {
+                                _selectedPath = drivePath;
+                            }
+                            else
+                            {
+                                _selectedPath = selectedPath;
+                            }
+                        }
+                        else
+                        {
+                            _selectedPath = selectedPath;
+                        }
+                    }
+                }
+
+                UpdateSelectedPath(_selectedPath);
+            }
+        }
+
+        private void UpdateSelectedPath(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                SelectedPath.Text = path;
+
+                // Show different text based on whether it's a file or directory
+                if (File.Exists(path))
+                {
+                    SelectedPathText.Text = $"Selected File: {Path.GetFileName(path)}";
+                }
+                else if (Directory.Exists(path))
+                {
+                    SelectedPathText.Text = $"Selected Folder: {path}";
+                }
+                else
+                {
+                    SelectedPathText.Text = $"Selected: {path}";
+                }
+
+                SelectedPathIndicator.Visibility = Visibility.Visible;
+                NoPathWarning.Visibility = Visibility.Collapsed;
+                ScanButton.IsEnabled = true;
+            }
+        }
+
         private async void ScanButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_isScanning) return;
+            if (_isScanning || string.IsNullOrEmpty(_selectedPath)) return;
 
             await StartScan();
         }
@@ -48,6 +154,7 @@ namespace GuardianDLL.pages
         {
             _isScanning = true;
             _currentProgress = 0;
+            _scanResults.Clear();
 
             // Update UI for scanning state
             ScanButton.Content = "Scanning...";
@@ -55,18 +162,34 @@ namespace GuardianDLL.pages
             ProgressSection.Visibility = Visibility.Visible;
             ResultsSection.Visibility = Visibility.Collapsed;
 
+            // Show appropriate scanning text
+            if (File.Exists(_selectedPath))
+            {
+                ScanningText.Text = $"Scanning file: {Path.GetFileName(_selectedPath)}";
+            }
+            else if (Directory.Exists(_selectedPath))
+            {
+                ScanningText.Text = $"Scanning folder: {_selectedPath}";
+            }
+            else
+            {
+                ScanningText.Text = $"Scanning: {_selectedPath}";
+            }
+
             // Reset progress
             ScanProgress.Value = 0;
             ProgressText.Text = "0%";
 
-            // Start actual scan in background (progress is now linked to work)
+            // Clear previous results
+            ResultsList.Items.Clear();
+
+            // Start actual scan in background
             await Task.Run(() => ScanSuspiciousDllsWithProgress());
 
             // Complete the scan
             CompleteScan();
         }
 
-        // No need for timer-based progress anymore, so disable timer
         private void ProgressTimer_Tick(object sender, EventArgs e) { }
 
         private void CompleteScan()
@@ -75,113 +198,164 @@ namespace GuardianDLL.pages
             _progressTimer.Stop();
 
             // Update UI for completed state
-            ScanButton.Content = "Start DLL Scan";
+            ScanButton.Content = "Start DLL Threat Scan";
             ScanButton.IsEnabled = true;
             ProgressSection.Visibility = Visibility.Collapsed;
             ResultsSection.Visibility = Visibility.Visible;
+
+            // Show appropriate results section
+            if (_scanResults.Count == 0)
+            {
+                NoThreatsSection.Visibility = Visibility.Visible;
+                ResultsScrollViewer.Visibility = Visibility.Collapsed;
+                ActionRequiredBadge.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                NoThreatsSection.Visibility = Visibility.Collapsed;
+                ResultsScrollViewer.Visibility = Visibility.Visible;
+                ActionRequiredBadge.Visibility = Visibility.Visible;
+            }
         }
 
         private void ScanSuspiciousDllsWithProgress()
         {
             var results = new List<ScanResult>();
-            var allDlls = new List<string>(GetAllDllFiles(@"C:\Program Files\Microsoft SDKs"));
-            int total = allDlls.Count;
-            int processed = 0;
+            var allDlls = new List<string>();
 
-            Dispatcher.Invoke(() =>
+            try
             {
-                ScanProgress.Maximum = total > 0 ? total : 1;
-                ScanProgress.Value = 0;
-                ProgressText.Text = "0%";
-            });
-
-            foreach (var dllPath in allDlls)
-            {
-                try
+                // Check if selected path is a file or directory
+                if (File.Exists(_selectedPath))
                 {
-                    string fileName = Path.GetFileName(dllPath).ToLower();
-                    bool isTrusted = false;
-                    bool hasCert = false;
-                    bool isHeuristic = false;
-                    bool isHijackProne = false;
+                    // If it's a DLL file, add it directly
+                    if (Path.GetExtension(_selectedPath).ToLower() == ".dll")
+                    {
+                        allDlls.Add(_selectedPath);
+                    }
+                    // If it's any other file, we can still check if it's suspicious based on path/name
+                    else
+                    {
+                        // Only scan executable files for potential threats
+                        string ext = Path.GetExtension(_selectedPath).ToLower();
+                        if (ext == ".exe" || ext == ".dll" || ext == ".sys" || ext == ".ocx")
+                        {
+                            allDlls.Add(_selectedPath);
+                        }
+                    }
+                }
+                else if (Directory.Exists(_selectedPath))
+                {
+                    allDlls.AddRange(GetAllDllFiles(_selectedPath));
+                }
 
+                int total = allDlls.Count;
+                int processed = 0;
+
+                Dispatcher.Invoke(() =>
+                {
+                    ScanProgress.Maximum = total > 0 ? total : 1;
+                    ScanProgress.Value = 0;
+                    ProgressText.Text = "0%";
+                });
+
+                foreach (var dllPath in allDlls)
+                {
                     try
                     {
-                        isTrusted = AuthenticodeTools.IsAuthenticodeSignedAndTrusted(dllPath);
-                        hasCert = IsSigned(dllPath); // Optionally keep this to distinguish unsigned from invalid
+                        string fileName = Path.GetFileName(dllPath).ToLower();
+                        bool isTrusted = false;
+                        bool hasCert = false;
+                        bool isHeuristic = false;
+                        bool isHijackProne = false;
+
+                        try
+                        {
+                            isTrusted = AuthenticodeTools.IsAuthenticodeSignedAndTrusted(dllPath);
+                            hasCert = IsSigned(dllPath);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            processed++;
+                            UpdateProgress(processed, total);
+                            continue;
+                        }
+                        catch
+                        {
+                            isTrusted = false;
+                            hasCert = false;
+                        }
+
+                        isHeuristic = IsSuspiciousHeuristic(dllPath);
+                        isHijackProne = IsHijackProne(fileName);
+
+                        string status = isHeuristic ? "malicious" : "suspicious";
+                        string threat = "";
+                        if (!isTrusted)
+                        {
+                            if (!hasCert)
+                                threat += "[UNSIGNED] ";
+                            else
+                                threat += "[INVALID CERT] ";
+                        }
+                        if (isHeuristic)
+                            threat += "[HEURISTIC MATCH] ";
+                        if (isHijackProne)
+                            threat += "[HIJACK-PRONE DLL] ";
+
+                        if (!isTrusted || isHeuristic || isHijackProne)
+                        {
+                            var fileInfo = new FileInfo(dllPath);
+                            string size = fileInfo.Length < 1024 ? $"{fileInfo.Length} B" :
+                                         fileInfo.Length < 1024 * 1024 ? $"{fileInfo.Length / 1024.0:F1} KB" :
+                                         $"{fileInfo.Length / 1024 / 1024.0:F1} MB";
+
+                            var result = new ScanResult
+                            {
+                                File = dllPath,
+                                Status = status,
+                                Threat = threat.Trim(),
+                                Size = size
+                            };
+
+                            results.Add(result);
+
+                            // Add result to UI as soon as found
+                            Dispatcher.Invoke(() =>
+                            {
+                                var item = CreateResultItem(result);
+                                ResultsList.Items.Add(item);
+                            });
+                        }
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        // Skip this DLL and continue
-                        processed++;
-                        UpdateProgress(processed, total);
-                        continue;
+                        // Skip this file and continue
                     }
                     catch
                     {
-                        isTrusted = false;
-                        hasCert = false;
+                        // Skip files that cause other issues
                     }
-
-                    isHeuristic = IsSuspiciousHeuristic(dllPath);
-                    isHijackProne = IsHijackProne(fileName);
-
-                    string status = isHeuristic ? "malicious" : "suspicious";
-                    string threat = "";
-                    if (!isTrusted)
+                    processed++;
+                    if (processed % 10 == 0 || processed == total)
                     {
-                        if (!hasCert)
-                            threat += "[UNSIGNED] ";
-                        else
-                            threat += "[INVALID CERT] ";
-                    }
-                    if (isHeuristic)
-                        threat += "[HEURISTIC MATCH] ";
-                    if (isHijackProne)
-                        threat += "[HIJACK-PRONE DLL] ";
-
-                    if (!isTrusted || isHeuristic || isHijackProne)
-                    {
-                        var fileInfo = new FileInfo(dllPath);
-                        string size = $"{fileInfo.Length / 1024 / 1024.0:F1} MB";
-
-                        var result = new ScanResult
-                        {
-                            File = dllPath,
-                            Status = status,
-                            Threat = threat.Trim(),
-                            Size = size
-                        };
-
-                        results.Add(result);
-
-                        // Add result to UI as soon as found
-                        Dispatcher.Invoke(() =>
-                        {
-                            var item = CreateResultItem(result);
-                            ResultsList.Items.Add(item);
-                        });
+                        UpdateProgress(processed, total);
                     }
                 }
-                catch (UnauthorizedAccessException)
+
+                _scanResults = results;
+                Dispatcher.Invoke(() =>
                 {
-                    // Skip this DLL and continue
-                }
-                catch
-                {
-                    // Skip files that cause other issues
-                }
-                processed++;
-                if (processed % 10 == 0 || processed == total)
-                {
-                    UpdateProgress(processed, total);
-                }
+                    ResultsCount.Text = $"{results.Count} threats found";
+                });
             }
-
-            Dispatcher.Invoke(() =>
+            catch (Exception ex)
             {
-                ResultsCount.Text = $"{results.Count} suspicious DLLs found";
-            });
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show($"Error during scan: {ex.Message}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                });
+            }
         }
 
         private void UpdateProgress(int processed, int total)
@@ -199,18 +373,70 @@ namespace GuardianDLL.pages
             var files = new List<string>();
             try
             {
-                files.AddRange(Directory.EnumerateFiles(root, "*.dll", SearchOption.TopDirectoryOnly));
+                // Scan for multiple file types, not just DLLs
+                string[] patterns = { "*.dll", "*.exe", "*.sys", "*.ocx" };
 
-                foreach (var dir in Directory.EnumerateDirectories(root))
+                foreach (string pattern in patterns)
                 {
                     try
                     {
-                        files.AddRange(GetAllDllFiles(dir));
+                        files.AddRange(Directory.EnumerateFiles(root, pattern, SearchOption.TopDirectoryOnly));
                     }
-                    catch { /* skip inaccessible subdirectory */ }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // Skip files we can't access
+                        continue;
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        // Skip if directory doesn't exist
+                        continue;
+                    }
+                    catch
+                    {
+                        // Skip other errors
+                        continue;
+                    }
+                }
+
+                // Recursively scan subdirectories
+                try
+                {
+                    foreach (var dir in Directory.EnumerateDirectories(root))
+                    {
+                        try
+                        {
+                            files.AddRange(GetAllDllFiles(dir));
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            // Skip inaccessible subdirectories
+                            continue;
+                        }
+                        catch
+                        {
+                            // Skip other errors in subdirectories
+                            continue;
+                        }
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Can't enumerate subdirectories
+                }
+                catch
+                {
+                    // Other errors enumerating subdirectories
                 }
             }
-            catch { /* skip inaccessible root */ }
+            catch (UnauthorizedAccessException)
+            {
+                // Can't access the root directory
+            }
+            catch
+            {
+                // Other errors accessing root
+            }
             return files;
         }
 
@@ -277,7 +503,105 @@ namespace GuardianDLL.pages
             return knownHijackableDlls.Contains(dllName.ToLower());
         }
 
-        // The following methods are unchanged and keep the UI result item/colours as before
+        private void QuarantineFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var filePath = button?.Tag as string;
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                try
+                {
+                    // Create quarantine directory if it doesn't exist
+                    string quarantineDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GuardianDLL", "Quarantine");
+                    Directory.CreateDirectory(quarantineDir);
+
+                    // Move file to quarantine with timestamp to avoid conflicts
+                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                    string quarantinedPath = Path.Combine(quarantineDir, $"{Path.GetFileName(filePath)}_{timestamp}.quarantined");
+                    File.Move(filePath, quarantinedPath);
+
+                    // Update UI to show quarantined status
+                    UpdateFileStatus(filePath, "quarantined");
+
+                    MessageBox.Show($"File quarantined successfully!\nLocation: {quarantinedPath}", "Quarantine Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to quarantine file: {ex.Message}", "Quarantine Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void RestoreFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var originalPath = button?.Tag as string;
+
+            if (!string.IsNullOrEmpty(originalPath))
+            {
+                try
+                {
+                    string quarantineDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GuardianDLL", "Quarantine");
+
+                    // Look for quarantined file (might have timestamp)
+                    string fileName = Path.GetFileName(originalPath);
+                    var quarantinedFiles = Directory.GetFiles(quarantineDir, $"{fileName}*.quarantined");
+
+                    if (quarantinedFiles.Length > 0)
+                    {
+                        string quarantinedPath = quarantinedFiles[0]; // Use the first match
+                        File.Move(quarantinedPath, originalPath);
+                        UpdateFileStatus(originalPath, "restored");
+                        MessageBox.Show("File restored successfully!", "Restore Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Quarantined file not found!", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to restore file: {ex.Message}", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void UpdateFileStatus(string filePath, string newStatus)
+        {
+            // Find and update the result item in the UI
+            foreach (Border item in ResultsList.Items)
+            {
+                var mainStack = item.Child as StackPanel;
+                var fileInfoStack = mainStack?.Children[0] as StackPanel;
+                var pathTextBlock = fileInfoStack?.Children[1] as TextBlock;
+
+                if (pathTextBlock?.Text == filePath)
+                {
+                    var statusBadge = fileInfoStack.Children[2] as Border;
+                    var statusText = statusBadge?.Child as TextBlock;
+
+                    if (statusText != null)
+                    {
+                        statusText.Text = newStatus.Substring(0, 1).ToUpper() + newStatus.Substring(1);
+
+                        // Update colors based on status
+                        if (newStatus == "quarantined")
+                        {
+                            statusBadge.Background = new SolidColorBrush(Color.FromRgb(0xfe, 0xd7, 0xaa));
+                            statusText.Foreground = new SolidColorBrush(Color.FromRgb(0x92, 0x40, 0x0e));
+                        }
+                        else if (newStatus == "restored")
+                        {
+                            statusBadge.Background = new SolidColorBrush(Color.FromRgb(0xbb, 0xf7, 0xd0));
+                            statusText.Foreground = new SolidColorBrush(Color.FromRgb(0x16, 0x65, 0x34));
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
         private UIElement CreateResultItem(ScanResult result)
         {
             var border = new Border
@@ -343,7 +667,8 @@ namespace GuardianDLL.pages
             // Details row
             var detailsStack = new StackPanel
             {
-                Orientation = Orientation.Horizontal
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, 0, 0, 12)
             };
 
             var sizeText = new TextBlock
@@ -366,8 +691,35 @@ namespace GuardianDLL.pages
             detailsStack.Children.Add(sizeText);
             detailsStack.Children.Add(threatText);
 
+            // Action buttons row
+            var actionStack = new StackPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+
+            var quarantineButton = new Button
+            {
+                Content = "Quarantine",
+                Tag = result.File,
+                Style = (Style)FindResource("QuarantineButtonStyle"),
+                Margin = new Thickness(0, 0, 8, 0)
+            };
+            quarantineButton.Click += QuarantineFile_Click;
+
+            var restoreButton = new Button
+            {
+                Content = "Restore",
+                Tag = result.File,
+                Style = (Style)FindResource("RestoreButtonStyle")
+            };
+            restoreButton.Click += RestoreFile_Click;
+
+            actionStack.Children.Add(quarantineButton);
+            actionStack.Children.Add(restoreButton);
+
             mainStack.Children.Add(fileInfoStack);
             mainStack.Children.Add(detailsStack);
+            mainStack.Children.Add(actionStack);
 
             border.Child = mainStack;
             return border;
