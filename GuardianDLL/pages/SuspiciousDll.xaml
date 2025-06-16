@@ -14,8 +14,8 @@
             <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
 
-        <!-- Scan Button Style -->
-        <Style x:Key="ScanButtonStyle" TargetType="Button">
+        <!-- Primary Button Style -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#0078d4"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -52,6 +52,126 @@
                                 <Setter Property="Foreground" Value="#808080"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Browse Button Style -->
+        <Style x:Key="BrowseButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="BorderBrush" Value="#404040"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <StackPanel Orientation="Horizontal" 
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center">
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                         Text="&#xE8DA;"
+                                         FontSize="14"
+                                         Margin="0,0,8,0"
+                                         VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#404040"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#505050"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Action Button Style -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="BorderBrush" Value="#404040"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#404040"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#505050"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Quarantine Button Style -->
+        <Style x:Key="QuarantineButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Foreground" Value="#f59e0b"/>
+            <Setter Property="BorderBrush" Value="#f59e0b"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#fef3c7"/>
+                    <Setter Property="Foreground" Value="#92400e"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Restore Button Style -->
+        <Style x:Key="RestoreButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Foreground" Value="#22c55e"/>
+            <Setter Property="BorderBrush" Value="#22c55e"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#dcfce7"/>
+                    <Setter Property="Foreground" Value="#166534"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Input Style -->
+        <Style x:Key="InputStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#404040"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#606060"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        VerticalAlignment="Center"
+                                        Margin="{TemplateBinding Padding}"/>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -99,6 +219,18 @@
             <Setter Property="Padding" Value="8,4"/>
         </Style>
 
+        <Style x:Key="QuarantinedBadge" TargetType="Border">
+            <Setter Property="Background" Value="#fed7aa"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+
+        <Style x:Key="RestoredBadge" TargetType="Border">
+            <Setter Property="Background" Value="#bbf7d0"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+
         <!-- Result Item Style -->
         <Style x:Key="ResultItemStyle" TargetType="Border">
             <Setter Property="Background" Value="#252526"/>
@@ -123,28 +255,93 @@
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <!-- Card Header -->
-                    <TextBlock Text="DLL File Scanner" 
+                    <TextBlock Text="DLL Threat Scanner" 
                                FontSize="20" 
                                FontWeight="SemiBold" 
                                Foreground="White" 
                                Margin="0,0,0,8"/>
 
-                    <TextBlock Text="Scan all DLL files in your system for potential threats and suspicious activities." 
+                    <TextBlock Text="Select a specific folder or file to scan for DLL threats. " 
                                FontSize="14" 
                                Foreground="#B0B0B0" 
                                Margin="0,0,0,24"/>
 
+                    <!-- File Selection Section -->
+                    <StackPanel Margin="0,0,0,24">
+                        <TextBlock Text="Select Scan Location *" 
+                                   FontSize="14" 
+                                   FontWeight="Medium" 
+                                   Foreground="White" 
+                                   Margin="0,0,0,8"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Name="SelectedPath"
+                                     Grid.Column="0"
+                                     Style="{StaticResource InputStyle}"
+                                     IsReadOnly="True"
+                                     Margin="0,0,8,0"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     VerticalScrollBarVisibility="Disabled"
+                                     TextWrapping="NoWrap"
+                                     VerticalContentAlignment="Center"
+                                     Padding="4"
+                                     MinWidth="200"/>           
+
+
+
+                            <Button Name="BrowseButton"
+                                    Grid.Column="1"
+                                    Content="Browse" 
+                                    Style="{StaticResource BrowseButtonStyle}"
+                                    Click="BrowseButton_Click"
+                                    Width="100"/>
+                        </Grid>
+
+                        <!-- Selected path indicator -->
+                        <StackPanel Name="SelectedPathIndicator" 
+                                    Orientation="Horizontal" 
+                                    Margin="0,8,0,0"
+                                    Visibility="Collapsed">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE930;"
+                                       FontSize="14"
+                                       Foreground="#22c55e"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
+                            <TextBlock Name="SelectedPathText"
+                                       Text="Selected: "
+                                       FontSize="12"
+                                       Foreground="#22c55e"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
                     <!-- Scan Button -->
                     <Button Name="ScanButton"
-                            Content="Start DLL Scan" 
-                            Style="{StaticResource ScanButtonStyle}"
+                            Content="Start DLL Threat Scan" 
+                            Style="{StaticResource PrimaryButtonStyle}"
                             Click="ScanButton_Click"
                             Margin="0,0,0,16"/>
+
+                    <!-- Warning when no path selected -->
+                    <TextBlock Name="NoPathWarning"
+                               Text="⚠️ Please select a folder or file to scan first"
+                               FontSize="12"
+                               Foreground="#ef4444"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,16"
+                               Visibility="Visible"/>
 
                     <!-- Progress Section -->
                     <StackPanel Name="ProgressSection" Visibility="Collapsed" Margin="0,0,0,16">
                         <Grid Margin="0,0,0,8">
-                            <TextBlock Text="Scanning DLL files..." 
+                            <TextBlock Name="ScanningText" 
+                                       Text="Scanning: " 
                                        FontSize="14" 
                                        Foreground="White" 
                                        HorizontalAlignment="Left"/>
@@ -165,73 +362,63 @@
                     <StackPanel Name="ResultsSection" Visibility="Collapsed">
                         <!-- Results Header -->
                         <Grid Margin="0,0,0,16">
-                            <TextBlock Text="Scan Results" 
+                            <TextBlock Text="Threat Detection Results" 
                                        FontSize="18" 
                                        FontWeight="SemiBold" 
                                        Foreground="White" 
                                        HorizontalAlignment="Left"/>
-                            <Border Background="#404040" 
-                                    CornerRadius="12" 
-                                    Padding="8,4" 
-                                    HorizontalAlignment="Right">
-                                <TextBlock Name="ResultsCount" 
-                                           Text="0 files scanned" 
-                                           FontSize="12" 
-                                           Foreground="White"/>
-                            </Border>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Border Background="#404040" 
+                                        CornerRadius="12" 
+                                        Padding="8,4" 
+                                        Margin="0,0,8,0">
+                                    <TextBlock Name="ResultsCount" 
+                                               Text="0 threats found" 
+                                               FontSize="12" 
+                                               Foreground="White"/>
+                                </Border>
+                                <Border Name="ActionRequiredBadge"
+                                        Background="#fecaca" 
+                                        CornerRadius="12" 
+                                        Padding="8,4"
+                                        Visibility="Collapsed">
+                                    <TextBlock Text="Action Required" 
+                                               FontSize="12" 
+                                               FontWeight="SemiBold"
+                                               Foreground="#991b1b"/>
+                                </Border>
+                            </StackPanel>
                         </Grid>
+
+                        <!-- No Threats Found -->
+                        <StackPanel Name="NoThreatsSection" 
+                                    HorizontalAlignment="Center" 
+                                    Margin="0,32,0,32"
+                                    Visibility="Collapsed">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE9D5;"
+                                       FontSize="48"
+                                       Foreground="#22c55e"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,16"/>
+                            <TextBlock Text="No Threats Detected"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="#22c55e"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,8"/>
+                            <TextBlock Text="All DLL files in the selected location appear to be clean."
+                                       FontSize="14"
+                                       Foreground="#B0B0B0"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
 
                         <!-- Results List -->
                         <ScrollViewer Name="ResultsScrollViewer" 
                                       Height="400" 
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl Name="ResultsList">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Style="{StaticResource ResultItemStyle}">
-                                            <StackPanel>
-                                                <!-- File Info Row -->
-                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                                    <!-- Status Icon -->
-                                                    <TextBlock Name="StatusIcon"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="16"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,8,0"/>
-
-                                                    <!-- File Path -->
-                                                    <TextBlock Text="{Binding File}" 
-                                                               FontWeight="Medium" 
-                                                               Foreground="White" 
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,12,0"/>
-
-                                                    <!-- Status Badge -->
-                                                    <Border Name="StatusBadge">
-                                                        <TextBlock Name="StatusText" 
-                                                                   FontSize="12" 
-                                                                   FontWeight="SemiBold"/>
-                                                    </Border>
-                                                </StackPanel>
-
-                                                <!-- Details Row -->
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock FontSize="12" 
-                                                               Foreground="#B0B0B0" 
-                                                               Margin="0,0,16,0">
-                                                        <Run Text="Size: "/>
-                                                        <Run Text="{Binding Size}"/>
-                                                    </TextBlock>
-                                                    <TextBlock FontSize="12" 
-                                                               Foreground="#B0B0B0">
-                                                        <Run Text="Threat: "/>
-                                                        <Run Text="{Binding Threat}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
+                                <!-- Results will be populated dynamically -->
                             </ItemsControl>
                         </ScrollViewer>
                     </StackPanel>
