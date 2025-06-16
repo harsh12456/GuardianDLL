@@ -51,7 +51,7 @@ namespace GuardianDLL.pages
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog
+            var dialog = new Microsoft.Win32.OpenFileDialog
             {
                 Title = "Select any folder or file to scan (including entire drives like C:\\)",
                 Filter = "All Files (*.*)|*.*|DLL Files (*.dll)|*.dll|Executable Files (*.exe)|*.exe",
@@ -353,7 +353,7 @@ namespace GuardianDLL.pages
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show($"Error during scan: {ex.Message}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show($"Error during scan: {ex.Message}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 });
             }
         }
@@ -505,7 +505,7 @@ namespace GuardianDLL.pages
 
         private void QuarantineFile_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
+            var button = sender as System.Windows.Controls.Button;
             var filePath = button?.Tag as string;
 
             if (!string.IsNullOrEmpty(filePath))
@@ -524,18 +524,18 @@ namespace GuardianDLL.pages
                     // Update UI to show quarantined status
                     UpdateFileStatus(filePath, "quarantined");
 
-                    MessageBox.Show($"File quarantined successfully!\nLocation: {quarantinedPath}", "Quarantine Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Windows.MessageBox.Show($"File quarantined successfully!\nLocation: {quarantinedPath}", "Quarantine Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to quarantine file: {ex.Message}", "Quarantine Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show($"Failed to quarantine file: {ex.Message}", "Quarantine Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
         private void RestoreFile_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
+            var button = sender as System.Windows.Controls.Button;
             var originalPath = button?.Tag as string;
 
             if (!string.IsNullOrEmpty(originalPath))
@@ -553,16 +553,16 @@ namespace GuardianDLL.pages
                         string quarantinedPath = quarantinedFiles[0]; // Use the first match
                         File.Move(quarantinedPath, originalPath);
                         UpdateFileStatus(originalPath, "restored");
-                        MessageBox.Show("File restored successfully!", "Restore Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                        System.Windows.MessageBox.Show("File restored successfully!", "Restore Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        MessageBox.Show("Quarantined file not found!", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show("Quarantined file not found!", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to restore file: {ex.Message}", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Windows.MessageBox.Show($"Failed to restore file: {ex.Message}", "Restore Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -588,13 +588,13 @@ namespace GuardianDLL.pages
                         // Update colors based on status
                         if (newStatus == "quarantined")
                         {
-                            statusBadge.Background = new SolidColorBrush(Color.FromRgb(0xfe, 0xd7, 0xaa));
-                            statusText.Foreground = new SolidColorBrush(Color.FromRgb(0x92, 0x40, 0x0e));
+                            statusBadge.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xfe, 0xd7, 0xaa));
+                            statusText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x92, 0x40, 0x0e));
                         }
                         else if (newStatus == "restored")
                         {
-                            statusBadge.Background = new SolidColorBrush(Color.FromRgb(0xbb, 0xf7, 0xd0));
-                            statusText.Foreground = new SolidColorBrush(Color.FromRgb(0x16, 0x65, 0x34));
+                            statusBadge.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xbb, 0xf7, 0xd0));
+                            statusText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x16, 0x65, 0x34));
                         }
                     }
                     break;
@@ -602,7 +602,7 @@ namespace GuardianDLL.pages
             }
         }
 
-        private UIElement CreateResultItem(ScanResult result)
+        private UIElement CreateResultItem(ScanResult result)   
         {
             var border = new Border
             {
@@ -694,10 +694,10 @@ namespace GuardianDLL.pages
             // Action buttons row
             var actionStack = new StackPanel
             {
-                Orientation = Orientation.Horizontal
+                Orientation = System.Windows.Controls.Orientation.Horizontal
             };
 
-            var quarantineButton = new Button
+            var quarantineButton = new System.Windows.Controls.Button
             {
                 Content = "Quarantine",
                 Tag = result.File,
@@ -706,7 +706,7 @@ namespace GuardianDLL.pages
             };
             quarantineButton.Click += QuarantineFile_Click;
 
-            var restoreButton = new Button
+            var restoreButton = new System.Windows.Controls.Button
             {
                 Content = "Restore",
                 Tag = result.File,
