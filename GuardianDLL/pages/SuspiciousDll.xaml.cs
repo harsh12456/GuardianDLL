@@ -16,7 +16,7 @@ namespace GuardianDLL.pages
 {
     public partial class SuspiciousDllView : System.Windows.Controls.UserControl
     {
-        private SafeDllBackupManager _backupManager = new SafeDllBackupManager();
+        private readonly SafeDllBackupManager _backupManager = new SafeDllBackupManager();
 
         private HashSet<string> knownHijackableDlls = new HashSet<string>
         {
