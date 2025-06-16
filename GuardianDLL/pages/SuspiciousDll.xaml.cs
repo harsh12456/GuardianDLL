@@ -616,7 +616,7 @@ namespace GuardianDLL.pages
             }
         }
 
-        private UIElement CreateResultItem(ScanResult result)
+        private UIElement CreateResultItem(ScanResult result)   
         {
             var border = new Border
             {

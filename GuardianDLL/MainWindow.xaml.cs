@@ -9,13 +9,54 @@ namespace GuardianDLL
     {
         private AllLogsView _allLogsView;
         private SuspiciousDllView _suspiciousDllView;
+        private HomePage homePage;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Initialize views
             _allLogsView = new AllLogsView();
             _suspiciousDllView = new SuspiciousDllView();
-            MainContent.Content = new AllLogsView(); // Load AllLogs page by default
-            SetActiveButton(AllLogsButton); // Set AllLogs as active by default
+
+            // Initialize HomePage
+            homePage = new HomePage();
+            homePage.NavigateToPage += HomePage_NavigateToPage;
+
+            MainContent.Content = homePage; // Load HomePage by default
+            SetActiveButton(DashboardButton); // Set Dashboard as active by default
+        }
+
+        // Fix: Add string parameter to match delegate signature
+        private void HomePage_NavigateToPage(string pageName)
+        {
+            // Example navigation logic based on pageName
+            switch (pageName)
+            {
+                case "all-logs":
+                    SetActiveButton(AllLogsButton);
+                    MainContent.Content = _allLogsView;
+                    break;
+                case "suspicious-dll":
+                    SetActiveButton(SuspiciousDllsButton);
+                    MainContent.Content = _suspiciousDllView;
+                    break;
+              
+                    MainContent.Content = new TextBlock
+                    {
+                        Text = "Suspicious Activities View (coming soon)",
+                        Foreground = System.Windows.Media.Brushes.OrangeRed,
+                        FontSize = 20,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+                    };
+                    break;
+                case "home":
+                default:
+                    SetActiveButton(DashboardButton);
+                    MainContent.Content = homePage;
+                    break;
+            }
         }
 
         private void SetActiveButton(System.Windows.Controls.Button activeButton)
@@ -24,7 +65,12 @@ namespace GuardianDLL
             DashboardButton.Style = (Style)Resources["SidebarButtonStyle"];
             AllLogsButton.Style = (Style)Resources["SidebarButtonStyle"];
             SuspiciousDllsButton.Style = (Style)Resources["SidebarButtonStyle"];
-            ThreatActivitiesButton.Style = (Style)Resources["SidebarButtonStyle"];
+
+            // Fix: Ensure ThreatActivitiesButton is properly defined and styled
+            if (FindName("ThreatActivitiesButton") is System.Windows.Controls.Button threatActivitiesButton)
+            {
+                threatActivitiesButton.Style = (Style)Resources["SidebarButtonStyle"];
+            }
 
             // Set the clicked button to active style
             activeButton.Style = (Style)Resources["ActiveSidebarButtonStyle"];
@@ -34,15 +80,8 @@ namespace GuardianDLL
         {
             SetActiveButton(DashboardButton);
 
-            // Placeholder for Home page
-            MainContent.Content = new TextBlock
-            {
-                Text = "Home Page (coming soon)",
-                Foreground = System.Windows.Media.Brushes.White,
-                FontSize = 20,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
-            };
+            // Show the actual HomePage under Dashboard navigation
+            MainContent.Content = homePage;
         }
 
         private void AllLogsButton_Click(object sender, RoutedEventArgs e)
@@ -59,7 +98,11 @@ namespace GuardianDLL
 
         private void SuspiciousActivitiesButton_Click(object sender, RoutedEventArgs e)
         {
-            SetActiveButton(ThreatActivitiesButton);
+            // Fix: Use FindName to locate the ThreatActivitiesButton dynamically
+            if (FindName("ThreatActivitiesButton") is System.Windows.Controls.Button threatActivitiesButton)
+            {
+                SetActiveButton(threatActivitiesButton);
+            }
 
             // Placeholder for future implementation
             MainContent.Content = new TextBlock
@@ -99,6 +142,5 @@ namespace GuardianDLL
             if (e.ButtonState == MouseButtonState.Pressed)
                 DragMove();
         }
-
     }
 }
