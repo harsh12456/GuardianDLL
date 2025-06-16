@@ -13,7 +13,7 @@ using System.Windows.Threading;
 
 namespace GuardianDLL.pages
 {
-    public partial class SuspiciousDllView : UserControl
+    public partial class SuspiciousDllView : System.Windows.Controls.UserControl
     {
         private HashSet<string> knownHijackableDlls = new HashSet<string>
         {
@@ -282,9 +282,9 @@ namespace GuardianDLL.pages
         {
             var border = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x26)),
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x25, 0x25, 0x26)),
                 CornerRadius = new CornerRadius(6),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0x40, 0x40, 0x40)),
+                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x40, 0x40, 0x40)),
                 BorderThickness = new Thickness(1),
                 Padding = new Thickness(16),
                 Margin = new Thickness(0, 0, 0, 8)
@@ -295,14 +295,14 @@ namespace GuardianDLL.pages
             // File info row
             var fileInfoStack = new StackPanel
             {
-                Orientation = Orientation.Horizontal,
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
                 Margin = new Thickness(0, 0, 0, 8)
             };
 
             // Status icon
             var statusIcon = new TextBlock
             {
-                FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                FontFamily = new System.Windows.Media.FontFamily("Segoe MDL2 Assets"),
                 FontSize = 16,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 8, 0)
@@ -313,7 +313,7 @@ namespace GuardianDLL.pages
             {
                 Text = result.File,
                 FontWeight = FontWeights.Medium,
-                Foreground = Brushes.White,
+                Foreground = System.Windows.Media.Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 12, 0)
             };
@@ -343,13 +343,13 @@ namespace GuardianDLL.pages
             // Details row
             var detailsStack = new StackPanel
             {
-                Orientation = Orientation.Horizontal
+                Orientation = System.Windows.Controls.Orientation.Horizontal
             };
 
             var sizeText = new TextBlock
             {
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(0xB0, 0xB0, 0xB0)),
+                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xB0, 0xB0, 0xB0)),
                 Margin = new Thickness(0, 0, 16, 0)
             };
             sizeText.Inlines.Add(new Run("Size: "));
@@ -358,7 +358,7 @@ namespace GuardianDLL.pages
             var threatText = new TextBlock
             {
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(0xB0, 0xB0, 0xB0))
+                Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xB0, 0xB0, 0xB0))
             };
             threatText.Inlines.Add(new Run("Threat: "));
             threatText.Inlines.Add(new Run(result.Threat));
@@ -379,26 +379,26 @@ namespace GuardianDLL.pages
             {
                 case "clean":
                     icon.Text = "\uE930"; // CheckCircle icon
-                    icon.Foreground = new SolidColorBrush(Color.FromRgb(0x22, 0xc5, 0x5e));
-                    badge.Background = new SolidColorBrush(Color.FromRgb(0xdc, 0xfc, 0xe7));
+                    icon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x22, 0xc5, 0x5e));
+                    badge.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xdc, 0xfc, 0xe7));
                     text.Text = "Clean";
-                    text.Foreground = new SolidColorBrush(Color.FromRgb(0x16, 0x6c, 0x34));
+                    text.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x16, 0x6c, 0x34));
                     break;
 
                 case "suspicious":
                     icon.Text = "\uE7BA"; // Warning icon
-                    icon.Foreground = new SolidColorBrush(Color.FromRgb(0xf5, 0x9e, 0x0b));
-                    badge.Background = new SolidColorBrush(Color.FromRgb(0xfe, 0xf3, 0xc7));
+                    icon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xf5, 0x9e, 0x0b));
+                    badge.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xfe, 0xf3, 0xc7));
                     text.Text = "Suspicious";
-                    text.Foreground = new SolidColorBrush(Color.FromRgb(0x92, 0x40, 0x0e));
+                    text.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x92, 0x40, 0x0e));
                     break;
 
                 case "malicious":
                     icon.Text = "\uE7BA"; // Warning icon
-                    icon.Foreground = new SolidColorBrush(Color.FromRgb(0xef, 0x44, 0x44));
-                    badge.Background = new SolidColorBrush(Color.FromRgb(0xfe, 0xca, 0xca));
+                    icon.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xef, 0x44, 0x44));
+                    badge.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0xfe, 0xca, 0xca));
                     text.Text = "Malicious";
-                    text.Foreground = new SolidColorBrush(Color.FromRgb(0x99, 0x1b, 0x1b));
+                    text.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x99, 0x1b, 0x1b));
                     break;
             }
         }
