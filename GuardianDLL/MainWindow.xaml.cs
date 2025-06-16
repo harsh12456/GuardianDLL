@@ -41,16 +41,6 @@ namespace GuardianDLL
                     SetActiveButton(SuspiciousDllsButton);
                     MainContent.Content = _suspiciousDllView;
                     break;
-              
-                    MainContent.Content = new TextBlock
-                    {
-                        Text = "Suspicious Activities View (coming soon)",
-                        Foreground = System.Windows.Media.Brushes.OrangeRed,
-                        FontSize = 20,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = System.Windows.HorizontalAlignment.Center
-                    };
-                    break;
                 case "home":
                 default:
                     SetActiveButton(DashboardButton);
