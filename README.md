@@ -134,7 +134,7 @@ Most modern malware abuses **DLL search order hijacking** to inject malicious co
 ## 👥 Contributors
 
 * [Sanskar Srivastava](https://github.com/Esquire31) – Lead Developer, Research & Design
-* [Harsh Patel](https://github.com/harsh12456) – Frontend Developer, Design
+* [Harsh Patel](https://github.com/harsh12456) – Frontend Developer, UI Design
 ---
 
 ## 📃 License
